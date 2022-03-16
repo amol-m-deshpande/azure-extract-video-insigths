@@ -1,10 +1,12 @@
 from flask_restful import Resource
 import json
+import requests
+# import azurestt.py
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from flask import session, render_template, request
 
-class WatsonSpeechToText(Resource):
+class AzureSpeechToText(Resource):
     
     STT_API_KEY_ID = ""
     STT_URL = ""
@@ -45,7 +47,48 @@ class WatsonSpeechToText(Resource):
             acoustic_models = {"customizations":[{"name": "No Credentials", "customization_id": "na"}]}
             self.acousticModel = acoustic_models
             self.languageModel = language_models
-    
+    def get_token(self,subscription_key):
+        fetch_token_url = 'https://eastus.api.cognitive.microsoft.com/sts/v1.0/issueToken'
+        headers = {
+            'Ocp-Apim-Subscription-Key': subscription_key
+        }
+        response = requests.post(fetch_token_url, headers=headers)
+        access_token = str(response.text)
+        return access_token
+
+
+    def getAudioFile(self,filepath):
+        subscription_key="d1d39f4eb2bf45b7b53dcef26aee54a5"
+        token = self.get_token("70454274154a415a959dcaea8d87808b")
+        print("pokran  : ",filepath)
+        url = "https://eastus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US"
+
+        payload=open(r'/Users/aishwaryapradeep/Documents/GitHub/azure-extract-video-insigths/azure.wav', 'rb')
+        payload=payload.read()
+        headers = {
+        'Content-Type': 'audio/wav',
+        'Ocp-Apim-Subscription-Key': subscription_key,
+        'Authorization': 'Bearer '+token,
+        'Accept':'application/json',
+        'Expect':'100-continue'
+
+        }
+        print("Headers  : ",headers)
+        print("token  : ",token)
+        print("token  : ",url)
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        # print("response  : ",response.text.encode('utf8'))
+        result = response.text
+        print("response.text  : ",result)
+        print("type : ",type(result))
+        result = json.loads(result)
+        print("result    lk :",result["DisplayText"])
+        
+        if result["DisplayText"]:
+            return result["DisplayText"]
+        return "INVALID"
+
     def get(self, model):
         if model == "acoustic":
             return self.acousticModel
@@ -65,53 +108,16 @@ class WatsonSpeechToText(Resource):
         filepath = audiofilepath.split('/')[2]
         print(filepath)
         try:
-            if langModelId == "lite" or acoModelId == "lite":
-                speech_recognition_results = self.transcribeLite(audiofilepath)
-            else:
-                speech_recognition_results = self.transcribePaid(audiofilepath, langModelId, acoModelId)
-            
-            for chunks in speech_recognition_results['results']:
-                if 'alternatives' in chunks.keys():
-                    alternatives = chunks['alternatives'][0]
-                    if 'transcript' in alternatives:
-                        transcript = transcript + alternatives['transcript']
-                        transcript += '.\n'
-
-            speakerLabels = speech_recognition_results["speaker_labels"]
-            
-            extractedData = []
-            for i in speech_recognition_results["results"]:
-                if i["word_alternatives"]:
-                    mydict = {'from': i["word_alternatives"][0]["start_time"], 'transcript': i["alternatives"]
-                                [0]["transcript"].replace("%HESITATION", ""), 'to': i["word_alternatives"][0]["end_time"]}
-                    mydict["transcript"] = mydict["transcript"] + "."
-                    extractedData.append(mydict)
-
-            for i in extractedData:
-                for j in speakerLabels:
-                    if i["from"] == j["from"] and i["to"] == j["to"]:
-                        mydictTemp = {"from": i["from"],
-                                        "to": i["to"],
-                                        "transcript": i["transcript"],
-                                        "speaker": j["speaker"],
-                                        "confidence": j["confidence"],
-                                        "final": j["final"],
-                                        }
-                        finalOutput.append(mydictTemp)
-            transcript = transcript.replace("%HESITATION", "")
-            transcript = transcript.replace(" .", ".")
-
-            for i in finalOutput:
-                speakerOutput += "<strong>Speaker {} ({} to {}) </strong>: {}".format(i["speaker"],i["from"], i["to"], i["transcript"])
-                speakerOutput += '<br>'
-                speakerOutput = speakerOutput.replace(" .", ".")
-            
+            print("I am here!")
+            transcript = self.getAudioFile(audiofilepath)
+            print("transcript  : ",transcript)
             with open("static/transcripts/"+filepath.split('.')[0]+'.txt', "w") as text_file:
                 text_file.write(transcript)
             
-            return {"transcript": transcript, "speaker": speakerOutput, "filename": filepath.split('.')[0]+'.txt'}
+            return {"transcript": transcript, "speaker": transcript, "filename": filepath.split('.')[0]+'.txt'}
         except Exception as e:
-            print(e)
+
+            print("oopsie!  ",e)
             return {"error": "Something went wrong, please try again."}
 
     def transcribeLite(self, audiofilepath):
