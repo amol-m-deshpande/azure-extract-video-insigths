@@ -58,12 +58,11 @@ class AzureSpeechToText(Resource):
 
 
     def getAudioFile(self,filepath):
-        subscription_key="d1d39f4eb2bf45b7b53dcef26aee54a5"
-        token = self.get_token("70454274154a415a959dcaea8d87808b")
-        print("pokran  : ",filepath)
+        subscription_key="___SUBKEY____"
+        token = self.get_token(subscription_key)
         url = "https://eastus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US"
 
-        payload=open(r'/Users/aishwaryapradeep/Documents/GitHub/azure-extract-video-insigths/azure.wav', 'rb')
+        payload=open(r'/Users/amoldeshpande/Documents/azure-exploration/azure.wav', 'rb')
         payload=payload.read()
         headers = {
         'Content-Type': 'audio/wav',
@@ -75,16 +74,10 @@ class AzureSpeechToText(Resource):
         }
         print("Headers  : ",headers)
         print("token  : ",token)
-        print("token  : ",url)
-
         response = requests.request("POST", url, headers=headers, data=payload)
         # print("response  : ",response.text.encode('utf8'))
         result = response.text
-        print("response.text  : ",result)
-        print("type : ",type(result))
         result = json.loads(result)
-        print("result    lk :",result["DisplayText"])
-        
         if result["DisplayText"]:
             return result["DisplayText"]
         return "INVALID"
@@ -108,7 +101,6 @@ class AzureSpeechToText(Resource):
         filepath = audiofilepath.split('/')[2]
         print(filepath)
         try:
-            print("I am here!")
             transcript = self.getAudioFile(audiofilepath)
             print("transcript  : ",transcript)
             with open("static/transcripts/"+filepath.split('.')[0]+'.txt', "w") as text_file:
