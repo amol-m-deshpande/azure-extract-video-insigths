@@ -13,3 +13,4 @@ __pycache__
 naturallanguageunderstanding.json
 speechtotext.json
 toneanalyzer.json
+.venv
