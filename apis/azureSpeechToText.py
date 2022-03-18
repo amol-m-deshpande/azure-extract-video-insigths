@@ -2,9 +2,14 @@ from flask_restful import Resource
 import json
 import requests
 # import azurestt.py
+import os
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from flask import session, render_template, request
+
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+AZURE_KEY = os.environ.get("AZURE_KEY")
 
 class AzureSpeechToText(Resource):
     
@@ -58,11 +63,11 @@ class AzureSpeechToText(Resource):
 
 
     def getAudioFile(self,filepath):
-        subscription_key="___SUBKEY____"
+        subscription_key=AZURE_KEY
         token = self.get_token(subscription_key)
         url = "https://eastus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US"
 
-        payload=open(r'/Users/amoldeshpande/Documents/azure-exploration/azure.wav', 'rb')
+        payload=open(filepath, 'rb')
         payload=payload.read()
         headers = {
         'Content-Type': 'audio/wav',
