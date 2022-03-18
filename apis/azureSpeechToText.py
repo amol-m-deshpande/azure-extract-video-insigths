@@ -2,9 +2,13 @@ from flask_restful import Resource
 import json
 import requests
 # import azurestt.py
+import os
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from flask import session, render_template, request
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+AZURE_KEY = os.environ.get("AZURE_KEY")
 
 class AzureSpeechToText(Resource):
     
@@ -58,9 +62,8 @@ class AzureSpeechToText(Resource):
 
 
     def getAudioFile(self,filepath):
-        subscription_key="d1d39f4eb2bf45b7b53dcef26aee54a5"
-        token = self.get_token("70454274154a415a959dcaea8d87808b")
-        print("pokran  : ",filepath)
+        subscription_key=AZURE_KEY
+        token = self.get_token(subscription_key)
         url = "https://eastus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US"
 
         payload=open(r'/Users/aishwaryapradeep/Documents/GitHub/azure-extract-video-insigths/azure.wav', 'rb')
@@ -75,16 +78,10 @@ class AzureSpeechToText(Resource):
         }
         print("Headers  : ",headers)
         print("token  : ",token)
-        print("token  : ",url)
-
         response = requests.request("POST", url, headers=headers, data=payload)
         # print("response  : ",response.text.encode('utf8'))
         result = response.text
-        print("response.text  : ",result)
-        print("type : ",type(result))
         result = json.loads(result)
-        print("result    lk :",result["DisplayText"])
-        
         if result["DisplayText"]:
             return result["DisplayText"]
         return "INVALID"
@@ -108,7 +105,6 @@ class AzureSpeechToText(Resource):
         filepath = audiofilepath.split('/')[2]
         print(filepath)
         try:
-            print("I am here!")
             transcript = self.getAudioFile(audiofilepath)
             print("transcript  : ",transcript)
             with open("static/transcripts/"+filepath.split('.')[0]+'.txt', "w") as text_file:
