@@ -379,7 +379,7 @@
       <div class="container right">
          <div class="content">
             <p>Launch the application in the preview window.</p>
-            <a class="button is-dark is-medium" title="Launch the Application" href="didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sandbox%20terminal$$cd%20${CHE_PROJECTS_ROOT}/video-analysis/video-insights%20%26%26%20python3.8%20app.py">Launch Application</a>
+            <a class="button is-dark is-medium" title="Launch the Application" href="didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sandbox%20terminal$$cd%20${CHE_PROJECTS_ROOT}/video-analysis%20%26%26%20python3.8%20app.py">Launch Application</a>
          </div>
       </div>
 
@@ -389,9 +389,9 @@
          <p>To edit or explore the application, make sure to stop it first.</p>
          <a class="button is-dark is-medium" title="stop application" href="didact://?commandId=vscode.didact.sendNamedTerminalCtrlC&text=sandbox%20terminal">Stop Application</a>
          <p class="afterbutton">Explore and update the code as per your requirement.</p>
-         <a class="button is-dark is-medium" title="Explore the Code" href="didact://?commandId=extension.openFile&text=open-file%7C${CHE_PROJECTS_ROOT}/video-analysis/video-insights/app.py">Explore Code</a>
+         <a class="button is-dark is-medium" title="Explore the Code" href="didact://?commandId=vscode.open&projectFilePath=/video-analysis/app.py">Explore Code</a>
          <p class="afterbutton ">Re-launch the application to view the changes made.</p>
-         <a class="button is-dark is-medium" title="Launch the Application" href="didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sandbox%20terminal$$cd%20${CHE_PROJECTS_ROOT}/video-analysis/video-insights%20%26%26%20python3.8%20app.py">Re-Launch Application</a>
+         <a class="button is-dark is-medium" title="Launch the Application" href="didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sandbox%20terminal$$cd%20${CHE_PROJECTS_ROOT}/video-analysis%20%26%26%20python3.8%20app.py">Re-Launch Application</a>
          <p style="margin-top:10px;">
             Click on <bold>Clean up</bold> to delete the IBM Cloud services that were created.
          </p>
